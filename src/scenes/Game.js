@@ -40,13 +40,6 @@ export default new Phaser.Class({
     bg.displayWidth = w;
     bg.displayHeight = h;
 
-    this.treasure = this.add.sprite(
-      this.sys.game.config.width - 80,
-      this.sys.game.config.height / 2,
-      "treasure"
-    );
-    this.treasure.setScale(1.5);
-
     const dragons = this.physics.add.group({
       key: "dragon",
       repeat: 11,
@@ -68,6 +61,7 @@ export default new Phaser.Class({
 
     const processCollision = (box, dragon) => {
       dragon.destroy();
+
       const dragonsLeft = dragons.countActive();
       if (dragonsLeft === 0) {
         var princess2 = this.physics.add.staticImage(600, 300, "princess2");
@@ -79,14 +73,13 @@ export default new Phaser.Class({
           treasure,
           princess2,
           function (treasureToPrincess) {
-            treasureToPrincess.body.stop();
+            this.scene.start("winscreen");
 
             this.physics.world.removeCollider(collider);
           },
           null,
           this
         );
-        this.scene.start("winscreen");
       }
     };
 
