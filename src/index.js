@@ -13,7 +13,7 @@ var config = {
       gravity: { y: 0, x: 0 },
     },
   },
-  scene: [MainMenu, Game, WinScreen]
+  scene: [MainMenu, Game, WinScreen],
 };
 
 var game = new Phaser.Game(config);

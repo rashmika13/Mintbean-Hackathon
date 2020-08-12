@@ -1,8 +1,12 @@
 import Phaser from "phaser";
-import mp3 from "../assets/Orbital\ Colossus.mp3";
+import mp3 from "../assets/Orbital Colossus.mp3";
 import background from "../assets/scifi_platform_BG1.jpg";
 import tiles from "../assets/scifi_platformTiles_32x32.png";
-import star from "../assets/star.png"
+import bg from "../assets/bg.png";
+import princess2 from "../assets/princess2.png";
+import treasure from "../assets/treasure.png";
+import dragon from "../assets/dragon.png";
+import star from "../assets/star.png";
 import { accelerate, decelerate } from "../utils";
 
 let box;
@@ -11,27 +15,47 @@ let cursors;
 export default new Phaser.Class({
   Extends: Phaser.Scene,
   initialize: function () {
-    Phaser.Scene.call(this, { key: 'game' });
+    Phaser.Scene.call(this, { key: "game" });
     window.GAME = this;
+    this.playerSpeed = 1.5;
+    this.enemySpeed = 2;
+    this.enemyMaxY = 280;
+    this.enemyMin = 80;
   },
   preload: function preload() {
-    this.load.image("background", background);
+    this.load.image("bg", bg);
+    this.load.image("dragon", dragon);
+    this.load.image("princess", princess);
+    this.load.image("treasure", treasure);
 
-    this.load.spritesheet('tiles', tiles, {
-      frameWidth: 32,
-      frameHeight: 32
-    });
+    // this.load.spritesheet("tiles", tiles, {
+    //   frameWidth: 32,
+    //   frameHeight: 32,
+    // });
 
     this.load.image("star", star);
   },
   create: function create() {
-    this.add.image(400, 300, "background");
+    var h = this.game.config.height;
+    var w = this.game.config.width;
+
+    let bg = this.add.sprite(0, 0, "bg");
+    bg.setOrigin(0, 0);
+    bg.displayWidth = w;
+    bg.displayHeight = h;
+
+    this.princess = this.add.sprite(
+      40,
+      this.sys.game.config.height / 2,
+      "princess"
+    );
+    this.princess.setScale(0.5);
 
     const stars = this.physics.add.group({
-      key: 'star',
+      key: "star",
       repeat: 11,
-      setScale: {x: 0.2, y: 0.2 },
-      setXY: { x:400, y: 300 }
+      setScale: { x: 0.2, y: 0.2 },
+      setXY: { x: 400, y: 300 },
     });
 
     stars.children.iterate(function (child) {
@@ -50,18 +74,11 @@ export default new Phaser.Class({
       star.destroy();
       const starsLeft = stars.countActive();
       if (starsLeft === 0) {
-        this.scene.start('winscreen');
+        this.scene.start("winscreen");
       }
-    }
+    };
 
-    this.physics.add.collider(
-      stars,
-      box,
-      processCollision,
-      null,
-      this
-    );
-
+    this.physics.add.collider(stars, box, processCollision, null, this);
 
     box.setBounce(1, 1);
     box.setCollideWorldBounds(true);
@@ -72,12 +89,12 @@ export default new Phaser.Class({
     if (cursors.space.isDown) {
       const x = decelerate(velocity.x);
       const y = decelerate(velocity.y);
-      box.setVelocity(x, y)
+      box.setVelocity(x, y);
     }
 
     if (cursors.up.isDown) box.setVelocityY(accelerate(velocity.y, -1));
     if (cursors.right.isDown) box.setVelocityX(accelerate(velocity.x, 1));
     if (cursors.down.isDown) box.setVelocityY(accelerate(velocity.y, 1));
     if (cursors.left.isDown) box.setVelocityX(accelerate(velocity.x, -1));
-  }
+  },
 });
