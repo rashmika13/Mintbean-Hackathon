@@ -17,21 +17,17 @@ export default new Phaser.Class({
   initialize: function () {
     Phaser.Scene.call(this, { key: "game" });
     window.GAME = this;
-    this.playerSpeed = 1.5;
-    this.enemySpeed = 2;
-    this.enemyMaxY = 280;
-    this.enemyMin = 80;
   },
   preload: function preload() {
     this.load.image("bg", bg);
     this.load.image("dragon", dragon);
-    this.load.image("princess", princess);
+    this.load.image("princess2", princess2);
     this.load.image("treasure", treasure);
 
-    // this.load.spritesheet("tiles", tiles, {
-    //   frameWidth: 32,
-    //   frameHeight: 32,
-    // });
+    this.load.spritesheet("tiles", tiles, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
 
     this.load.image("star", star);
   },
@@ -44,21 +40,21 @@ export default new Phaser.Class({
     bg.displayWidth = w;
     bg.displayHeight = h;
 
-    this.princess = this.add.sprite(
-      40,
+    this.treasure = this.add.sprite(
+      this.sys.game.config.width - 80,
       this.sys.game.config.height / 2,
-      "princess"
+      "treasure"
     );
-    this.princess.setScale(0.5);
+    this.treasure.setScale(1.5);
 
-    const stars = this.physics.add.group({
-      key: "star",
+    const dragons = this.physics.add.group({
+      key: "dragon",
       repeat: 11,
-      setScale: { x: 0.2, y: 0.2 },
+      setScale: { x: 0.5, y: 0.5 },
       setXY: { x: 400, y: 300 },
     });
 
-    stars.children.iterate(function (child) {
+    dragons.children.iterate(function (child) {
       child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
       child.setVelocityX(150 - Math.random() * 300);
       child.setVelocityY(150 - Math.random() * 300);
@@ -68,17 +64,33 @@ export default new Phaser.Class({
 
     cursors = this.input.keyboard.createCursorKeys();
 
-    box = this.physics.add.image(400, 100, "tiles", 15);
+    box = this.physics.add.image(400, 100, "princess2", 15);
 
-    const processCollision = (box, star) => {
-      star.destroy();
-      const starsLeft = stars.countActive();
-      if (starsLeft === 0) {
+    const processCollision = (box, dragon) => {
+      dragon.destroy();
+      const dragonsLeft = dragons.countActive();
+      if (dragonsLeft === 0) {
+        var princess2 = this.physics.add.staticImage(600, 300, "princess2");
+        var treasure = this.physics.add.image(200, 300, "treasure");
+
+        this.physics.accelerateToObject(treasure, princess2, 60, 300, 300);
+
+        var collider = this.physics.add.overlap(
+          treasure,
+          princess2,
+          function (treasureToPrincess) {
+            treasureToPrincess.body.stop();
+
+            this.physics.world.removeCollider(collider);
+          },
+          null,
+          this
+        );
         this.scene.start("winscreen");
       }
     };
 
-    this.physics.add.collider(stars, box, processCollision, null, this);
+    this.physics.add.collider(dragons, box, processCollision, null, this);
 
     box.setBounce(1, 1);
     box.setCollideWorldBounds(true);

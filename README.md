@@ -1,4 +1,4 @@
-# Mintbean's PhaserJS Template
+# Princess vs Dragons - Phaser3
 
 ## Getting Started
 
